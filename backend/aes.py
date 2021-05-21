@@ -30,6 +30,7 @@ EncryptionResult = namedtuple('EncryptionResult', 'payload key iv')
 
 IV_SIZE = 12
 
+
 def _decrypt(key, iv, tag, data):
     decryptor = Cipher(
         algorithms.AES(key),

@@ -43,7 +43,7 @@ class DeviceManager:
             if device == self.own_device:
                 continue
             count = self._storage.getUnacknowledgedCount(jid, device)
-            if count > UNACKNOWLEDGED_COUNT:
+            if count > UNACKNOWLEDGED_COUNT.var:
                 self._log.warning('Ignore device because of %s unacknowledged'
                                   ' messages: %s %s', count, jid, device)
                 devicelist.remove(device)

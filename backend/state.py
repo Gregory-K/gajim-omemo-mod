@@ -175,7 +175,7 @@ class OmemoState(DeviceManager):
 
         for jid_, device in devices_for_encryption:
             count = self._storage.getUnacknowledgedCount(jid_, device)
-            if count >= UNACKNOWLEDGED_COUNT:
+            if count >= UNACKNOWLEDGED_COUNT.var:
                 self._log.warning('Set device inactive %s because of %s '
                                   'unacknowledged messages', device, count)
                 self.remove_device(jid_, device)

@@ -14,6 +14,10 @@
 # You should have received a copy of the GNU General Public License
 # along with OMEMO Gajim Plugin. If not, see <http://www.gnu.org/licenses/>.
 
+import pickle
+from pathlib import Path
+from gajim.common import configpaths
+
 import binascii
 import textwrap
 from logging import LoggerAdapter
@@ -25,7 +29,27 @@ DEFAULT_PREKEY_AMOUNT = 100
 MIN_PREKEY_AMOUNT = 80
 SPK_ARCHIVE_TIME = 86400 * 15  # 15 Days
 SPK_CYCLE_TIME = 86400         # 24 Hours
-UNACKNOWLEDGED_COUNT = 300
+
+
+class Manage_Constants():
+
+    def __init__(self):
+        conf_dir = Path(configpaths.get('PLUGINS_CONFIG_DIR'))
+        self.conf_file = conf_dir / 'omemo_mod.pickle'
+        if not Path(self.conf_file).is_file():
+            self.var = 300
+            with open(self.conf_file, 'wb') as f:
+                pickle.dump(self.var, f)
+        else:
+            with open(self.conf_file, 'rb') as f:
+                self.var = pickle.load(f)
+
+    def set_constants(self):
+        with open(self.conf_file, 'wb') as f:
+            pickle.dump(self.var, f)
+
+
+UNACKNOWLEDGED_COUNT = Manage_Constants()
 
 
 class Trust(IntEnum):
