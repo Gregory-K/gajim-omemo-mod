@@ -1,3 +1,7 @@
+2.7.14.1 Mod / 2021-05-11
+- Storage mechanism for the UNACKNOWLEDGED_COUNT constant
+- Expose UNACKNOWLEDGED_COUNT as a user configurable value
+
 2.7.13 / 2021-01-08
 - Fix file download
 

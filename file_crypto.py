@@ -110,7 +110,7 @@ class FileDecryption:
         if transfer.size:
             # This gets called even when the requested file is not found
             # So only update the progress if the file was actually found and
-            # we know the size
+            # we know the size 
             transfer.update_progress()
 
         self._session.pause_message(message)

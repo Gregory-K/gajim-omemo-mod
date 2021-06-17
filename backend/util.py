@@ -44,7 +44,7 @@ class Manage_Constants():
             with open(self.conf_file, 'rb') as f:
                 self.var = pickle.load(f)
 
-    def set_constants(self):
+    def save_constants(self):
         with open(self.conf_file, 'wb') as f:
             pickle.dump(self.var, f)
 

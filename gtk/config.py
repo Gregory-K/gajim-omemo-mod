@@ -22,7 +22,7 @@ from gajim.common import app
 from gajim.plugins.gui import GajimPluginConfigDialog
 from gajim.plugins.helpers import get_builder
 
-from omemo.backend.util import get_fingerprint
+from omemo.backend.util import get_fingerprint, UNACKNOWLEDGED_COUNT
 
 log = logging.getLogger('gajim.p.omemo')
 
@@ -131,6 +131,11 @@ class OMEMOConfigDialog(GajimPluginConfigDialog):
     def _on_blind_trust(self, button):
         self.plugin.config['BLIND_TRUST'] = button.get_active()
 
+    def _alter_unacknowledged_count(self, button):
+        UNACKNOWLEDGED_COUNT.var = int(button.get_text()) \
+            if button.get_text() != '' else 300
+        UNACKNOWLEDGED_COUNT.save_constants()
+
     def update_context_list(self):
         self._ui.deviceid_store.clear()
 
@@ -166,3 +171,5 @@ class OMEMOConfigDialog(GajimPluginConfigDialog):
     def update_settings(self):
         self._ui.blind_trust_checkbutton.set_active(
             self.plugin.config['BLIND_TRUST'])
+        self._ui.unacknowledged_count.set_text(
+            str(UNACKNOWLEDGED_COUNT.var))
