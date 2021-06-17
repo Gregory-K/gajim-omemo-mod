@@ -25,11 +25,6 @@ from enum import IntEnum
 
 from axolotl.identitykey import IdentityKey
 
-DEFAULT_PREKEY_AMOUNT = 100
-MIN_PREKEY_AMOUNT = 80
-SPK_ARCHIVE_TIME = 86400 * 15  # 15 Days
-SPK_CYCLE_TIME = 86400         # 24 Hours
-
 
 class Manage_Constants():
 
@@ -38,6 +33,10 @@ class Manage_Constants():
         self.conf_file = conf_dir / 'omemo_mod.pickle'
         if not Path(self.conf_file).is_file():
             self.var = {
+                'DEFAULT_PREKEY_AMOUNT': 100,
+                'MIN_PREKEY_AMOUNT': 80,
+                'SPK_ARCHIVE_TIME': 86400 * 15,  # 15 Days
+                'SPK_CYCLE_TIME': 86400,         # 24 Hours
                 'UNACKNOWLEDGED_COUNT': 300
             }
             with open(self.conf_file, 'wb') as f:

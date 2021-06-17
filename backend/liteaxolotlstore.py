@@ -34,7 +34,7 @@ from gajim.common import app
 
 from omemo.backend.util import Trust
 from omemo.backend.util import IdentityKeyExtended
-from omemo.backend.util import DEFAULT_PREKEY_AMOUNT
+from omemo.backend.util import CONSTANTS
 
 
 def _convert_to_string(text):
@@ -103,7 +103,7 @@ class LiteAxolotlStore(AxolotlStore):
         registration_id = KeyHelper.getRandomSequence(2147483647)
         pre_keys = KeyHelper.generatePreKeys(
             KeyHelper.getRandomSequence(4294967296),
-            DEFAULT_PREKEY_AMOUNT)
+            CONSTANTS.var['DEFAULT_PREKEY_AMOUNT'])
         self.storeLocalData(registration_id, identity_key_pair)
 
         signed_pre_key = KeyHelper.generateSignedPreKey(

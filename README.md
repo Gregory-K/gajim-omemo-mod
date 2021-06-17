@@ -19,9 +19,9 @@
 
 # "OMEMO Mod" plugin for Gajim
 
-A modified version of the official OMEMO plugin for Gajim that exposes the "unacknowledged message count" (`UNACKNOWLEDGED_COUNT`) as a user configurable value. It works as a drop-in replacement.
+A modified version of the official OMEMO plugin for Gajim that exposes the "unacknowledged message count" (`UNACKNOWLEDGED_COUNT`) and the rest of the `backend.utils` constants as user configurable values. It works as a drop-in replacement.
 
-This additional setting can be found in the "Advanced" section under the "Settings" tab of the "OMEMO configuration" panel/window.
+These additional settings can be found in the "Advanced" section under the "Settings" tab of the "OMEMO configuration" panel/window.
 
 Homepage: https://github.com/Gregory-K/gajim-omemo-mod
 
@@ -38,7 +38,7 @@ Homepage: https://github.com/Gregory-K/gajim-omemo-mod
 
 For the time being, the "OMEMO Mod" works as intended, but it's still just a **draft hack** that covers personal needs. It does nothing more or less than its description and it doesn't "touch" any other part of the "OMEMO" source code.
 
-The `expose_all` branch flirts with the idea of exposing all the hardcoded values (constants) as user configurable values, although I cannot see a practical reason behind that yet.
+The current `expose_all` branch flirts with the idea of exposing all the hardcoded constants as user configurable values, although I cannot see a practical reason behind that yet. Warning messages have been placed in the REAME.md file and the "OMEMO configuration" panel/window.
 
 The `gajim_1.3` branch of the [gajim-plugins](https://dev.gajim.org/gajim/gajim-plugins)<sup>(ext)</sup> repository is being used as source code, and the following versions of Gajim are **supported**:  
 . min Gajim version: 1.2.91  
@@ -111,9 +111,46 @@ OR
 - **Advanced** : Checkout [this repository](https://github.com/Gregory-K/gajim-omemo-mod) directly into (or checkout to your previously chosen location and copy to) the `omemo` path.
 
 
+## Configuration
+
+Tips on tinkering with the "Advanced" settings of "OMEMO Mod".
+
+**UNACKNOWLEDGED_COUNT**  
+*number of unacknowledged messages before a device gets marked as inactive*  
+Default: 300  
+Allowed: 1 - 9999  
+Guide Note: As per usage patterns and SecOps demands.
+
+**DEFAULT_PREKEY_AMOUNT**  
+*number of PreKeys to provide in the bundle*  
+Default: 100  
+Allowed: 80 - 999  
+Guide Note: The bundle SHOULD always contain around 100 PreKeys.
+
+**MIN_PREKEY_AMOUNT**  
+*minimum number of PreKeys to provide in the bundle*  
+Default: 80  
+Allowed: 25 - 999  
+Guide Note: The bundle MUST always contain at least 25 PreKeys.
+
+**SPK_ARCHIVE_TIME**  
+*time period in seconds to keep Singed PreKeys*  
+Default: 1296000 seconds = 15 days  
+Allowed: 86400 - 5259600 seconds (1 day to 2 months)  
+Guide Note: All existing Signed PreKeys that are older than SPK_ARCHIVE_TIME will be deleted.
+
+**SPK_CYCLE_TIME**  
+*signed PreKey rotation period*  
+Default: 86400 seconds = 24 hours  
+Allowed: 86400 - 2629800 seconds (1 day to 1 month)  
+Guide Note: Signed PreKeys SHOULD be rotated periodically once a week to once a month. A faster or slower rotation period should not be required.
+
+
 ## Reasoning
 
 Justification for providing the end user with the ability to change the "OMEMO" `UNACKNOWLEDGED_COUNT` ("unacknowledged message count") value.
+
+The ability to change the "unacknowledged message count" value is the main objective of the "OMEMO Mod". The ability to alter the rest of the "Advanced" settings is just for tinkering around and other niche cases.
 
 ### Preface
 
@@ -139,7 +176,15 @@ UNACKNOWLEDGED_COUNT = 300
 > - Set device inactive after 300 unacknowledged messages
 > ```
 
-In summary, `UNACKNOWLEDGED_COUNT` ("unacknowledged message count") is the maximum number of messages, a threshold, after which a non-receiving device (device ID) will be marked as "inactive" and will no-further receive messages signed with its key.
+#### In summary
+
+`UNACKNOWLEDGED_COUNT`, or plainly "unacknowledged message count", is the maximum number of messages, a threshold, after which a non-receiving device (device ID) will be marked as "inactive" and will no-further receive messages signed with its key.  
+
+The rest of the constants meaning:  
+- `DEFAULT_PREKEY_AMOUNT` is the number of PreKeys to provide in the bundle. The bundle SHOULD always contain around 100 PreKeys.
+- `MIN_PREKEY_AMOUNT` it the minimum number of PreKeys to provide in the bundle. The bundle MUST always contain at least 25 PreKeys.
+- `SPK_ARCHIVE_TIME` is a time period after which all existing SignedPreKeys will be deleted.
+- `SPK_CYCLE_TIME` is the Signed PreKey rotation period. Signed PreKeys SHOULD be rotated periodically once a week to once a month. A faster or slower rotation period should not be required.
 
 ### Case Study - the Issue
 

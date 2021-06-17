@@ -1,5 +1,6 @@
-2.7.14.1.1 Mod (testing) / 2021-05-13
+2.7.14.2 Mod / 2021-05-14
 - Update the storage mechanism to manage all the "backend.util constants"
+- Expose all "Advanced" OMEMO settings as user-configurable
 
 2.7.14.1 Mod / 2021-05-11
 - Storage mechanism for the UNACKNOWLEDGED_COUNT constant

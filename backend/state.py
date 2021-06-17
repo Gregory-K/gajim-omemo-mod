@@ -41,10 +41,6 @@ from omemo.backend.devices import NoDevicesFound
 from omemo.backend.liteaxolotlstore import LiteAxolotlStore
 from omemo.backend.util import get_fingerprint
 from omemo.backend.util import Trust
-from omemo.backend.util import DEFAULT_PREKEY_AMOUNT
-from omemo.backend.util import MIN_PREKEY_AMOUNT
-from omemo.backend.util import SPK_CYCLE_TIME
-from omemo.backend.util import SPK_ARCHIVE_TIME
 from omemo.backend.util import CONSTANTS
 
 
@@ -301,15 +297,15 @@ class OmemoState(DeviceManager):
     def _check_pre_key_count(self):
         # Check if enough PreKeys are available
         pre_key_count = self._storage.getPreKeyCount()
-        if pre_key_count < MIN_PREKEY_AMOUNT:
-            missing_count = DEFAULT_PREKEY_AMOUNT - pre_key_count
+        if pre_key_count < CONSTANTS.var['MIN_PREKEY_AMOUNT']:
+            missing_count = CONSTANTS.var['DEFAULT_PREKEY_AMOUNT'] - pre_key_count
             self._storage.generateNewPreKeys(missing_count)
             self._log.info('%s PreKeys created', missing_count)
 
     def _cycle_signed_pre_key(self, ik_pair):
-        # Publish every SPK_CYCLE_TIME a new SignedPreKey
+        # Publish every CONSTANTS.var['SPK_CYCLE_TIME'] a new SignedPreKey
         # Delete all exsiting SignedPreKeys that are older
-        # then SPK_ARCHIVE_TIME
+        # then CONSTANTS.var['SPK_ARCHIVE_TIME']
 
         # Check if SignedPreKey exist and create if not
         if not self._storage.getCurrentSignedPreKeyId():
@@ -318,19 +314,19 @@ class OmemoState(DeviceManager):
             self._storage.storeSignedPreKey(spk.getId(), spk)
             self._log.debug('New SignedPreKey created, because none existed')
 
-        # if SPK_CYCLE_TIME is reached, generate a new SignedPreKey
+        # if CONSTANTS.var['SPK_CYCLE_TIME'] is reached, generate a new SignedPreKey
         now = int(time.time())
         timestamp = self._storage.getSignedPreKeyTimestamp(
             self._storage.getCurrentSignedPreKeyId())
 
-        if int(timestamp) < now - SPK_CYCLE_TIME:
+        if int(timestamp) < now - CONSTANTS.var['SPK_CYCLE_TIME']:
             spk = KeyHelper.generateSignedPreKey(
                 ik_pair, self._storage.getNextSignedPreKeyId())
             self._storage.storeSignedPreKey(spk.getId(), spk)
             self._log.debug('Cycled SignedPreKey')
 
-        # Delete all SignedPreKeys that are older than SPK_ARCHIVE_TIME
-        timestamp = now - SPK_ARCHIVE_TIME
+        # Delete all SignedPreKeys that are older than CONSTANTS.var['SPK_ARCHIVE_TIME']
+        timestamp = now - CONSTANTS.var['SPK_ARCHIVE_TIME']
         self._storage.removeOldSignedPreKeys(timestamp)
 
 
