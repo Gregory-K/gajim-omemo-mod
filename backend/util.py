@@ -37,7 +37,9 @@ class Manage_Constants():
         conf_dir = Path(configpaths.get('PLUGINS_CONFIG_DIR'))
         self.conf_file = conf_dir / 'omemo_mod.pickle'
         if not Path(self.conf_file).is_file():
-            self.var = 300
+            self.var = {
+                'UNACKNOWLEDGED_COUNT': 300
+            }
             with open(self.conf_file, 'wb') as f:
                 pickle.dump(self.var, f)
         else:
@@ -49,7 +51,7 @@ class Manage_Constants():
             pickle.dump(self.var, f)
 
 
-UNACKNOWLEDGED_COUNT = Manage_Constants()
+CONSTANTS = Manage_Constants()
 
 
 class Trust(IntEnum):

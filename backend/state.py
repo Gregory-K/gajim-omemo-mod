@@ -45,7 +45,7 @@ from omemo.backend.util import DEFAULT_PREKEY_AMOUNT
 from omemo.backend.util import MIN_PREKEY_AMOUNT
 from omemo.backend.util import SPK_CYCLE_TIME
 from omemo.backend.util import SPK_ARCHIVE_TIME
-from omemo.backend.util import UNACKNOWLEDGED_COUNT
+from omemo.backend.util import CONSTANTS
 
 
 class OmemoState(DeviceManager):
@@ -175,7 +175,7 @@ class OmemoState(DeviceManager):
 
         for jid_, device in devices_for_encryption:
             count = self._storage.getUnacknowledgedCount(jid_, device)
-            if count >= UNACKNOWLEDGED_COUNT.var:
+            if count >= CONSTANTS.var['UNACKNOWLEDGED_COUNT']:
                 self._log.warning('Set device inactive %s because of %s '
                                   'unacknowledged messages', device, count)
                 self.remove_device(jid_, device)

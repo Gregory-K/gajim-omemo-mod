@@ -18,7 +18,7 @@ from collections import defaultdict
 
 from gajim.common import app
 
-from omemo.backend.util import UNACKNOWLEDGED_COUNT
+from omemo.backend.util import CONSTANTS
 
 
 class DeviceManager:
@@ -43,7 +43,7 @@ class DeviceManager:
             if device == self.own_device:
                 continue
             count = self._storage.getUnacknowledgedCount(jid, device)
-            if count > UNACKNOWLEDGED_COUNT.var:
+            if count > CONSTANTS.var['UNACKNOWLEDGED_COUNT']:
                 self._log.warning('Ignore device because of %s unacknowledged'
                                   ' messages: %s %s', count, jid, device)
                 devicelist.remove(device)
