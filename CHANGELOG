@@ -1,3 +1,6 @@
+2.7.14.1.1 Mod / 2021-06-18
+- input values validation allowing only digits
+
 2.7.14.1 Mod / 2021-05-11
 - Storage mechanism for the UNACKNOWLEDGED_COUNT constant
 - Expose UNACKNOWLEDGED_COUNT as a user configurable value

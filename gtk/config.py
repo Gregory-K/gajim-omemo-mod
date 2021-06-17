@@ -132,8 +132,14 @@ class OMEMOConfigDialog(GajimPluginConfigDialog):
         self.plugin.config['BLIND_TRUST'] = button.get_active()
 
     def _alter_unacknowledged_count(self, button):
-        UNACKNOWLEDGED_COUNT.var = int(button.get_text()) \
-            if button.get_text() != '' else 300
+        if button.get_text().isdigit():
+            datum = int(button.get_text()) \
+                if button.get_text() != '' else 300
+            if datum == 0:
+                datum = 1
+        else:
+            datum = 300
+        UNACKNOWLEDGED_COUNT.var = datum
         UNACKNOWLEDGED_COUNT.save_constants()
 
     def update_context_list(self):
