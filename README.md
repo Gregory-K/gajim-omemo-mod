@@ -53,7 +53,8 @@ Information on how to [install](#Procedure) or [update](#Updating-Procedure) thi
 
 This altered plugin shares the same manifest `short_name` with the original for the sole purpose of aiding the user in ensuring that only one OMEMO plugin will be loaded.
 
-Its version will always be one or more decimal places larger than the official one, to secure that it will be loaded instead of the Gajim's "installed by default" one.
+Its version will always be one or more decimal places larger than the official one, to secure that it will be loaded instead of the Gajim's "installed by default" one.  
+*e.g. v2.7.14.2.1 = "OMEMO" v2.7.14 + "OMEMO Mod" v2.1*
 
 **Attention.** Keep in mind that the Gajim "Plugin Installer" cannot auto-update the "OMEMO Mod". In case of a newer official version, since both plugins share the same manifest `short_name`, it will revert-update to the official one. "OMEMO Mod" can only be updated manually, as per the [directions](#Updating-Procedure) bellow.
 

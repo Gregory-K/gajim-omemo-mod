@@ -1,3 +1,6 @@
+2.7.14.2.1 Mod / 2021-06-18
+- input values validation allowing only digits
+
 2.7.14.2 Mod / 2021-05-14
 - Update the storage mechanism to manage all the "backend.util constants"
 - Expose all "Advanced" OMEMO settings as user-configurable

@@ -132,46 +132,61 @@ class OMEMOConfigDialog(GajimPluginConfigDialog):
         self.plugin.config['BLIND_TRUST'] = button.get_active()
 
     def _alter_unacknowledged_count(self, button):
-        datum = int(button.get_text()) \
-            if button.get_text() != '' else 300
-        if datum == 0:
-            datum = 1
+        if button.get_text().isdigit():
+            datum = int(button.get_text()) \
+                if button.get_text() != '' else 300
+            if datum == 0:
+                datum = 1
+        else:
+            datum = 300
         CONSTANTS.var['UNACKNOWLEDGED_COUNT'] = datum
         CONSTANTS.save_constants()
 
     def _alter_default_prekey_amount(self, button):
-        datum = int(button.get_text()) \
-            if button.get_text() != '' else 100
-        if datum < 80:
-            datum = 80
+        if button.get_text().isdigit():
+            datum = int(button.get_text()) \
+                if button.get_text() != '' else 100
+            if datum < 80:
+                datum = 80
+        else:
+            datum = 100
         CONSTANTS.var['DEFAULT_PREKEY_AMOUNT'] = datum
         CONSTANTS.save_constants()
 
     def _alter_min_prekey_amount(self, button):
-        datum = int(button.get_text()) \
-            if button.get_text() != '' else 80
-        if datum < 25:
-            datum = 25
+        if button.get_text().isdigit():
+            datum = int(button.get_text()) \
+                if button.get_text() != '' else 80
+            if datum < 25:
+                datum = 25
+        else:
+            datum = 80
         CONSTANTS.var['MIN_PREKEY_AMOUNT'] = datum
         CONSTANTS.save_constants()
 
     def _alter_spk_archive_time(self, button):
-        datum = int(button.get_text()) \
-            if button.get_text() != '' else 1296000
-        if datum < 86400:
-            datum = 86400
-        elif datum > 5259600:
-            datum = 5259600
+        if button.get_text().isdigit():
+            datum = int(button.get_text()) \
+                if button.get_text() != '' else 1296000
+            if datum < 86400:
+                datum = 86400
+            elif datum > 5259600:
+                datum = 5259600
+        else:
+            datum = 1296000
         CONSTANTS.var['SPK_ARCHIVE_TIME'] = datum
         CONSTANTS.save_constants()
 
     def _alter_spk_cycle_time(self, button):
-        datum = int(button.get_text()) \
-            if button.get_text() != '' else 86400
-        if datum < 86400:
+        if button.get_text().isdigit():
+            datum = int(button.get_text()) \
+                if button.get_text() != '' else 86400
+            if datum < 86400:
+                datum = 86400
+            elif datum > 2629800:
+                datum = 2629800
+        else:
             datum = 86400
-        elif datum > 2629800:
-            datum = 2629800
         CONSTANTS.var['SPK_CYCLE_TIME'] = datum
         CONSTANTS.save_constants()
 
