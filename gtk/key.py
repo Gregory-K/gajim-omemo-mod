@@ -69,7 +69,7 @@ class KeyDialog(Gtk.Dialog):
         self._groupchat = groupchat
         self._contact = contact
         self._windows = windows
-        self._account = self._contact.account.name
+        self._account = self._contact.account
         self._plugin = plugin
         self._omemo = self._plugin.get_omemo(self._account)
         self._own_jid = app.get_jid_from_account(self._account)
@@ -187,16 +187,15 @@ class KeyDialog(Gtk.Dialog):
         log.debug('Verification String: %s', ver_string)
 
         import qrcode
-        qr = qrcode.QRCode(version=None, error_correction=2,
-                           box_size=4, border=1)
+        qr = qrcode.QRCode(version=None,
+                           error_correction=qrcode.constants.ERROR_CORRECT_L,
+                           box_size=6,
+                           border=4)
         qr.add_data(ver_string)
         qr.make(fit=True)
-        qr.make()
 
         fill_color = 'black'
-        back_color = 'transparent'
-        if app.css_config.prefer_dark:
-            back_color = 'white'
+        back_color = 'white'
         if V(get_distribution('qrcode').version) < V('6.0'):
             # meaning of fill_color and back_color were switched
             # before this commit in qrcode between versions 5.3

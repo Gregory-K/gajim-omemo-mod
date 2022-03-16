@@ -20,7 +20,6 @@ from gajim.common import configpaths
 
 import binascii
 import textwrap
-from logging import LoggerAdapter
 from enum import IntEnum
 
 from axolotl.identitykey import IdentityKey

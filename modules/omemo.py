@@ -21,7 +21,6 @@ from pathlib import Path
 
 from nbxmpp.namespaces import Namespace
 from nbxmpp.protocol import NodeProcessed
-from nbxmpp.protocol import JID
 from nbxmpp.errors import StanzaError
 from nbxmpp.const import PresenceType
 from nbxmpp.const import Affiliation
@@ -32,7 +31,7 @@ from nbxmpp.modules.util import is_error
 
 from gajim.common import app
 from gajim.common import configpaths
-from gajim.common.nec import NetworkEvent
+from gajim.common.events import MessageNotSent
 from gajim.common.const import EncryptionData
 from gajim.common.const import Trust as GajimTrust
 from gajim.common.modules.base import BaseModule
@@ -48,6 +47,7 @@ from omemo.backend.state import MessageNotForDevice
 from omemo.backend.state import DecryptionFailed
 from omemo.backend.state import DuplicateMessage
 from omemo.backend.util import Trust
+from omemo.modules.events import OMEMONewFingerprint
 from omemo.modules.util import prepare_stanza
 
 
@@ -103,7 +103,7 @@ class OMEMO(BaseModule):
 
         self.available = True
 
-        self._own_jid = self._con.get_own_jid().getStripped()
+        self._own_jid = self._con.get_own_jid().bare
         self._backend = self._get_backend()
 
         self._omemo_groupchats = set()
@@ -114,7 +114,7 @@ class OMEMO(BaseModule):
 
     def get_own_jid(self, stripped=False):
         if stripped:
-            return self._con.get_own_jid().getStripped()
+            return self._con.get_own_jid().bare
         return self._con.get_own_jid()
 
     @property
@@ -156,19 +156,14 @@ class OMEMO(BaseModule):
             callback(event)
             return
 
-        to_jid = app.get_jid_without_resource(event.jid)
-
-        omemo_message = self.backend.encrypt(to_jid, event.message)
+        omemo_message = self.backend.encrypt(event.jid, event.message)
         if omemo_message is None:
-            session = event.session if hasattr(event, 'session') else None
-            app.nec.push_incoming_event(
-                NetworkEvent('message-not-sent',
-                             conn=conn,
-                             jid=event.jid,
-                             message=event.message,
-                             error=_('Encryption error'),
-                             time_=time.time(),
-                             session=session))
+            app.ged.raise_event(
+                MessageNotSent(client=conn,
+                               jid=event.jid,
+                               message=event.message,
+                               error=_('Encryption error'),
+                               time=time.time()))
             return
 
         create_omemo_message(event.stanza, omemo_message,
@@ -211,7 +206,7 @@ class OMEMO(BaseModule):
             from_jid = self._process_muc_message(properties)
 
         else:
-            from_jid = properties.jid.getBare()
+            from_jid = properties.jid.bare
 
         if from_jid is None:
             return
@@ -259,15 +254,14 @@ class OMEMO(BaseModule):
                                                'trust': GajimTrust[trust.name]})
 
     def _process_muc_message(self, properties):
-        room_jid = properties.jid.getBare()
-        resource = properties.jid.getResource()
+        resource = properties.jid.resource
         if properties.muc_ofrom is not None:
             # History Message from MUC
-            return properties.muc_ofrom.getBare()
+            return properties.muc_ofrom.bare
 
-        contact = app.contacts.get_gc_contact(self._account, room_jid, resource)
-        if contact is not None:
-            return JID(contact.jid).getBare()
+        contact = self._con.get_module('Contacts').get_contact(properties.jid)
+        if contact.real_jid is not None:
+            return contact.real_jid.bare
 
         self._log.info('Groupchat: Last resort trying to find SID in DB')
         from_jid = self.backend.storage.getJidFromDevice(properties.omemo.sid)
@@ -284,8 +278,8 @@ class OMEMO(BaseModule):
                 self._log.warning('Received MAM Message which can '
                                   'not be mapped to a real jid')
                 return
-            return properties.muc_user.jid.getBare()
-        return properties.from_.getBare()
+            return properties.muc_user.jid.bare
+        return properties.from_.bare
 
     def _on_muc_user_presence(self, _con, _stanza, properties):
         if properties.type == PresenceType.ERROR:
@@ -294,13 +288,13 @@ class OMEMO(BaseModule):
         if properties.is_muc_destroyed:
             return
 
-        room = properties.jid.getBare()
+        room = properties.jid.bare
 
         if properties.muc_user is None or properties.muc_user.jid is None:
             # No real jid found
             return
 
-        jid = properties.muc_user.jid.getBare()
+        jid = properties.muc_user.jid.bare
         if properties.muc_user.affiliation in (Affiliation.OUTCAST,
                                                Affiliation.NONE):
             self.backend.remove_muc_member(room, jid)
@@ -341,13 +335,16 @@ class OMEMO(BaseModule):
     def is_contact_in_roster(self, jid):
         if jid == self._own_jid:
             return True
-        contact = app.contacts.get_first_contact_from_jid(self._account, jid)
-        if contact is None:
+
+        roster_item = self._con.get_module('Roster').get_item(jid)
+        if roster_item is None:
             return False
-        return contact.sub == 'both'
+
+        contact = self._con.get_module('Contacts').get_contact(jid)
+        return contact.subscription == 'both'
 
     def on_muc_disco_update(self, event):
-        self._check_if_omemo_capable(event.room_jid)
+        self._check_if_omemo_capable(event.jid)
 
     def on_muc_joined(self, event):
         self._check_if_omemo_capable(event.room_jid)
@@ -440,11 +437,9 @@ class OMEMO(BaseModule):
 
         # Trigger dialog to trust new Fingerprints if
         # the Chat Window is Open
-        ctrl = app.interface.msg_win_mgr.get_control(
-            jid, self._account)
+        ctrl = app.window.get_control(self._account, jid)
         if ctrl:
-            app.nec.push_incoming_event(
-                NetworkEvent('omemo-new-fingerprint', chat_control=ctrl))
+            app.ged.raise_event(OMEMONewFingerprint(chat_control=ctrl))
 
     def set_devicelist(self, devicelist=None):
         devicelist_ = set([self.backend.own_device])
@@ -486,7 +481,7 @@ class OMEMO(BaseModule):
         self._process_devicelist_update(str(properties.jid), devicelist)
 
     def _process_devicelist_update(self, jid, devicelist):
-        own_devices = jid is None or self._con.get_own_jid().bareMatch(jid)
+        own_devices = jid is None or self._con.get_own_jid().bare_match(jid)
         if own_devices:
             jid = self._own_jid
 

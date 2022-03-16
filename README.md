@@ -38,11 +38,11 @@ Homepage: https://github.com/Gregory-K/gajim-omemo-mod
 
 For the time being, the "OMEMO Mod" works as intended, but it's still just a **draft hack** that covers personal needs. It does nothing more or less than its description and it doesn't "touch" any other part of the "OMEMO" source code.
 
-The current `expose_all` branch flirts with the idea of exposing all the hardcoded constants as user configurable values, although I cannot see a practical reason behind that yet. Warning messages have been placed in the REAME.md file and the "OMEMO configuration" panel/window.
+The current `gajim_1.4_dev` branch follows the paradigm of `expose_all`, and flirts with the idea of exposing all the hardcoded constants as user configurable values, although I cannot see a practical reason behind that yet. Warning messages have been placed in the REAME.md file and the "OMEMO configuration" panel/window.
 
-The `gajim_1.3` branch of the [gajim-plugins](https://dev.gajim.org/gajim/gajim-plugins)<sup>(ext)</sup> repository is being used as source code, and the following versions of Gajim are **supported**:  
-. min Gajim version: 1.2.91  
-. max Gajim version: 1.3.90
+The `master` branch of the [gajim-plugins](https://dev.gajim.org/gajim/gajim-plugins)<sup>(ext)</sup> repository is being used as source code, and the following versions of Gajim are **supported**:  
+. min Gajim version: 1.4.0-dev1  
+. max Gajim version: 1.4.90
 
 
 ## Installation

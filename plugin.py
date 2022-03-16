@@ -28,17 +28,12 @@ from gi.repository import Gdk
 
 from nbxmpp.namespaces import Namespace
 
-from gajim import dialogs
 from gajim.common import app, ged
+
+from gajim.gui.dialogs import ErrorDialog
+
 from gajim.plugins import GajimPlugin
 from gajim.plugins.plugins_i18n import _
-from gajim.groupchat_control import GroupchatControl
-
-from omemo import file_crypto
-from omemo.gtk.key import KeyDialog
-from omemo.gtk.config import OMEMOConfigDialog
-from omemo.backend.aes import aes_encrypt_file
-
 
 AXOLOTL_MISSING = 'You are missing Python3-Axolotl or use an outdated version'
 PROTOBUF_MISSING = "OMEMO can't import Google Protobuf, you can find help in " \
@@ -68,6 +63,9 @@ except Exception as error:
 if not ERROR_MSG:
     try:
         from omemo.modules import omemo
+        from omemo.gtk.key import KeyDialog
+        from omemo.gtk.config import OMEMOConfigDialog
+        from omemo.backend.aes import aes_encrypt_file
     except Exception as error:
         log.error(error)
         ERROR_MSG = 'Error: %s' % error
@@ -94,12 +92,11 @@ class OmemoPlugin(GajimPlugin):
             'omemo-new-fingerprint': (ged.PRECORE, self._on_new_fingerprints),
             'signed-in': (ged.PRECORE, self._on_signed_in),
             'muc-disco-update': (ged.GUI1, self._on_muc_disco_update),
-            'muc-joined': (ged.GUI1, self._on_muc_joined),
+            'room-joined': (ged.GUI1, self._on_muc_joined),
         }
         self.modules = [omemo]
         self.config_dialog = OMEMOConfigDialog(self)
         self.gui_extension_points = {
-            'hyperlink_handler': (self._file_decryption, None),
             'encrypt' + self.encryption_name: (self._encrypt_message, None),
             'gc_encrypt' + self.encryption_name: (
                 self._muc_encrypt_message, None),
@@ -209,10 +206,6 @@ class OmemoPlugin(GajimPlugin):
             return
         self.get_omemo(account).encrypt_message(conn, obj, callback, False)
 
-    def _file_decryption(self, uri, instance, window):
-        file_crypto.FileDecryption(self).hyperlink_handler(
-            uri, instance, window)
-
     def encrypt_file(self, file, _account, callback):
         thread = threading.Thread(target=self._encrypt_file_thread,
                                   args=(file, callback))
@@ -244,10 +237,10 @@ class OmemoPlugin(GajimPlugin):
         contact = chat_control.contact
         omemo = self.get_omemo(account)
         self.new_fingerprints_available(chat_control)
-        if isinstance(chat_control, GroupchatControl):
+        if chat_control.is_groupchat:
             room = chat_control.room_jid
             if not omemo.is_omemo_groupchat(room):
-                dialogs.ErrorDialog(
+                ErrorDialog(
                     _('Bad Configuration'),
                     _('To use OMEMO in a Groupchat, the Groupchat should be'
                       ' non-anonymous and members-only.'))
@@ -287,7 +280,7 @@ class OmemoPlugin(GajimPlugin):
         jid = chat_control.contact.jid
         account = chat_control.account
         omemo = self.get_omemo(account)
-        if isinstance(chat_control, GroupchatControl):
+        if chat_control.is_groupchat:
             for jid_ in omemo.backend.get_muc_members(chat_control.room_jid,
                                                       without_self=False):
                 fingerprints = omemo.backend.storage.getNewFingerprints(jid_)
@@ -295,7 +288,7 @@ class OmemoPlugin(GajimPlugin):
                     self._show_fingerprint_window(
                         chat_control, fingerprints)
                     break
-        elif not isinstance(chat_control, GroupchatControl):
+        else:
             fingerprints = omemo.backend.storage.getNewFingerprints(jid)
             if fingerprints:
                 self._show_fingerprint_window(
@@ -305,13 +298,11 @@ class OmemoPlugin(GajimPlugin):
         contact = chat_control.contact
         account = chat_control.account
         omemo = self.get_omemo(account)
-        transient = chat_control.parent_win.window
 
         if 'dialog' not in self._windows:
-            is_groupchat = isinstance(chat_control, GroupchatControl)
             self._windows['dialog'] = \
-                KeyDialog(self, contact, transient,
-                          self._windows, groupchat=is_groupchat)
+                KeyDialog(self, contact, app.window,
+                          self._windows, groupchat=chat_control.is_groupchat)
             if fingerprints:
                 log.debug('%s => Showing Fingerprint Prompt for %s',
                           account, contact.jid)
@@ -334,4 +325,4 @@ class OmemoPlugin(GajimPlugin):
             msg = _('You have undecided fingerprints')
         if msg is None:
             return
-        chat_control.add_status_message(msg)
+        chat_control.add_info_message(msg)
