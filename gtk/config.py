@@ -18,43 +18,58 @@
 
 import logging
 
+from gi.repository import Gtk
+from gi.repository import Gdk
+
 from gajim.common import app
-from gajim.plugins.gui import GajimPluginConfigDialog
 from gajim.plugins.helpers import get_builder
+from gajim.plugins.plugins_i18n import _
 
 from omemo.backend.util import get_fingerprint, CONSTANTS
 
 log = logging.getLogger('gajim.p.omemo')
 
 
-class OMEMOConfigDialog(GajimPluginConfigDialog):
-    def init(self):
-        # pylint: disable=attribute-defined-outside-init
-        path = self.plugin.local_file_path('gtk/config.ui')
+class OMEMOConfigDialog(Gtk.ApplicationWindow):
+    def __init__(self, plugin, transient):
+        Gtk.ApplicationWindow.__init__(self)
+        self.set_application(app.app)
+        self.set_show_menubar(False)
+        self.set_title(_('OMEMO Settings'))
+        self.set_transient_for(transient)
+        self.set_default_size(400, 400)
+        self.set_type_hint(Gdk.WindowTypeHint.DIALOG)
+        self.set_destroy_with_parent(True)
+
+        self._plugin = plugin
+
+        path = self._plugin.local_file_path('gtk/config.ui')
         self._ui = get_builder(path)
 
-        image_path = self.plugin.local_file_path('omemo.png')
+        image_path = self._plugin.local_file_path('omemo.png')
         self._ui.image.set_from_file(image_path)
 
         try:
-            self.disabled_accounts = self.plugin.config['DISABLED_ACCOUNTS']
+            self.disabled_accounts = self._plugin.config['DISABLED_ACCOUNTS']
         except KeyError:
-            self.plugin.config['DISABLED_ACCOUNTS'] = []
-            self.disabled_accounts = self.plugin.config['DISABLED_ACCOUNTS']
+            self._plugin.config['DISABLED_ACCOUNTS'] = []
+            self.disabled_accounts = self._plugin.config['DISABLED_ACCOUNTS']
 
-        box = self.get_content_area()
+        box = Gtk.Box()
         box.pack_start(self._ui.notebook1, True, True, 0)
 
+        self.add(box)
+
         self._ui.connect_signals(self)
+        self.show_all()
 
         self.plugin_active = False
-
-    def on_run(self):
         for plugin in app.plugin_manager.active_plugins:
             log.debug(type(plugin))
             if type(plugin).__name__ == 'OmemoPlugin':
                 self.plugin_active = True
                 break
+
         self.update_account_store()
         self.update_account_combobox()
         self.update_disabled_account_view()
@@ -102,7 +117,7 @@ class OMEMOConfigDialog(GajimPluginConfigDialog):
                 self._ui.account_store.append(row=(account[0],))
                 self.disabled_accounts.remove(account[0])
         self.update_disabled_account_view()
-        self.plugin.config['DISABLED_ACCOUNTS'] = self.disabled_accounts
+        self._plugin.config['DISABLED_ACCOUNTS'] = self.disabled_accounts
         self.update_account_combobox()
 
     def disable_accounts_btn_clicked(self, _button, *args):
@@ -116,7 +131,7 @@ class OMEMOConfigDialog(GajimPluginConfigDialog):
                 self.disabled_accounts.append(account[0])
                 self._ui.account_store.remove(it)
         self.update_disabled_account_view()
-        self.plugin.config['DISABLED_ACCOUNTS'] = self.disabled_accounts
+        self._plugin.config['DISABLED_ACCOUNTS'] = self.disabled_accounts
         self.update_account_combobox()
 
     def cleardevice_button_clicked_cb(self, button, *args):
@@ -129,16 +144,16 @@ class OMEMOConfigDialog(GajimPluginConfigDialog):
         self.update_context_list()
 
     def _on_blind_trust(self, button):
-        self.plugin.config['BLIND_TRUST'] = button.get_active()
+        self._plugin.config['BLIND_TRUST'] = button.get_active()
 
     def _alter_unacknowledged_count(self, button):
         if button.get_text().isdigit():
             datum = int(button.get_text()) \
-                if button.get_text() != '' else 300
+                if button.get_text() != '' else 2000
             if datum == 0:
                 datum = 1
         else:
-            datum = 300
+            datum = 2000
         CONSTANTS.var['UNACKNOWLEDGED_COUNT'] = datum
         CONSTANTS.save_constants()
 
@@ -210,7 +225,7 @@ class OMEMOConfigDialog(GajimPluginConfigDialog):
             self._ui.cleardevice_button.set_sensitive(True)
 
         # Set FPR Label and DeviceID
-        omemo = self.plugin.get_omemo(account)
+        omemo = self._plugin.get_omemo(account)
         self._ui.ID.set_markup('<tt>%s</tt>' % omemo.backend.own_device)
 
         identity_key = omemo.backend.storage.getIdentityKeyPair()
@@ -224,7 +239,7 @@ class OMEMOConfigDialog(GajimPluginConfigDialog):
 
     def update_settings(self):
         self._ui.blind_trust_checkbutton.set_active(
-            self.plugin.config['BLIND_TRUST'])
+            self._plugin.config['BLIND_TRUST'])
         self._ui.unacknowledged_count.set_text(
             str(CONSTANTS.var['UNACKNOWLEDGED_COUNT']))
         self._ui.default_prekey_amount.set_text(

@@ -36,7 +36,7 @@ class Manage_Constants():
                 'MIN_PREKEY_AMOUNT': 80,
                 'SPK_ARCHIVE_TIME': 86400 * 15,  # 15 Days
                 'SPK_CYCLE_TIME': 86400,         # 24 Hours
-                'UNACKNOWLEDGED_COUNT': 300
+                'UNACKNOWLEDGED_COUNT': 2000
             }
             with open(self.conf_file, 'wb') as f:
                 pickle.dump(self.var, f)

@@ -635,12 +635,12 @@ It is advised to go online with all of your actively used devices after clearing
                           <object class="GtkEntry" id="unacknowledged_count">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="tooltip_text" translatable="yes">Default: 300
-Allowed: 1 - 9999
+                            <property name="tooltip_text" translatable="yes">Default: 2000
+Allowed: 1 - 99999
 Guide Note: As per usage patterns and/or SecOps demands.</property>
                             <property name="halign">start</property>
-                            <property name="max_length">4</property>
-                            <property name="width_chars">5</property>
+                            <property name="max_length">5</property>
+                            <property name="width_chars">6</property>
                             <property name="input_purpose">number</property>
                             <property name="input_hints">GTK_INPUT_HINT_NO_SPELLCHECK | GTK_INPUT_HINT_NONE</property>
                             <signal name="changed" handler="_alter_unacknowledged_count" swapped="no"/>
