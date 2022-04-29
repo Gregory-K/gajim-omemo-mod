@@ -38,11 +38,19 @@ Homepage: https://github.com/Gregory-K/gajim-omemo-mod
 
 For the time being, the "OMEMO Mod" works as intended, but it's still just a **draft hack** that covers personal needs. It does nothing more or less than its description and it doesn't "touch" any other part of the "OMEMO" source code.
 
-The current `gajim_1.4_dev` branch follows the paradigm of `expose_all`, and exposes all the hardcoded constants as user configurable values. Warning messages have been placed in the REAME.md file and the "OMEMO configuration" panel/window.
+**Present Branch / Release**
+
+The `gajim_1.4_dev` branch follows the paradigm of `expose_all`, and exposes all the hardcoded constants as user configurable values for the comming-up v1.4 of Gajim.
 
 The `master` branch of the [gajim-plugins](https://dev.gajim.org/gajim/gajim-plugins)<sup>(ext)</sup> repository is being used as source code, and the following versions of Gajim are **supported**:  
 . min Gajim version: 1.4.0-dev1  
 . max Gajim version: 1.4.90
+
+**Other Branches / Releases**
+
+`Master` and `expose_msg_count` branches are the same. They expose only the "unacknowledged message count" (`UNACKNOWLEDGED_COUNT`) as a user configurable value. _(Gajim v1.3)_
+
+The `expose_all` branch exposes all the hardcoded values (constants) as user configurable values. _(Gajim v1.3)_
 
 
 ## Installation
@@ -88,7 +96,7 @@ Its version will always be one or more decimal places larger than the official o
 
 AND
 
-- **Easy** : Download the latest [Release](https://github.com/Gregory-K/gajim-omemo-mod/releases) `.tar.gz`/`.7z` file and extract it into the `omemo` path.
+- **Easy** : Download the latest [Release](https://github.com/Gregory-K/gajim-omemo-mod/releases) `.tar.gz`/`.7z` file for your Gajim version and extract it into the `omemo` path.
 
 OR
 
