@@ -1,46 +1,5 @@
-# Patch/diff artifacts.
-*.diff
-*.orig
-*.patch
-*.rej
-interdiff*.txt
+# This is the top-most .gitignore file
+# OS / IDE sidecar files and other artifacts justified for omission
+# should be listed in the `.git/info/exclude` file
 
-# emacs artifacts.
-*~
-\#*\#
-
-# VI swap file
-*.swp
-
-# Hidden files.
-.DS*
-.htaccess
-.project
-
-# Windows links.
-*.lnk
-
-# Temporary files.
-tmp*
-
-# Excludes for Project Tree
-# (from origin)
-*.pyc
-*.pyo
-__pycache__/
-*.*~
-*~
-*#
-.mypy_cache
-*.swp
-# extra
-/_archive/
-/dist/
-.ipynb
-
-# Exclude IDE's project directory
-*.sublime-project
-*.sublime-workspace
-*.tasks
-.idea
-.vscode
+# Project Specifics
